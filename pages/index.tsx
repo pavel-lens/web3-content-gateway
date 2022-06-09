@@ -1,9 +1,58 @@
+import { ethers } from 'ethers'
 import type { NextPage } from 'next'
+import { signIn, signOut, useSession } from 'next-auth/react'
 import Head from 'next/head'
 import Image from 'next/image'
+import { useState } from 'react'
+import WalletConnectProvider from '@walletconnect/web3-provider'
+import Web3Modal from 'web3modal'
 import styles from '../styles/Home.module.css'
 
+/* web3Modal configuration for enabling wallet access */
+async function getWeb3Modal() {
+  const web3Modal = new Web3Modal({
+    cacheProvider: false,
+    providerOptions: {
+      walletconnect: {
+        package: WalletConnectProvider,
+        options: {
+          infuraId: 'your-infura-id',
+        },
+      },
+    },
+  })
+  return web3Modal
+}
+
 const Home: NextPage = () => {
+  /* create local state to save account information after signin */
+  const [account, setAccount] = useState('')
+  const { data: session, status } = useSession()
+
+  /* the connect function uses web3 modal to connect to the user's wallet */
+  async function connect() {
+    try {
+      const web3Modal = await getWeb3Modal()
+      const connection = await web3Modal.connect()
+      const provider = new ethers.providers.Web3Provider(connection)
+      const accounts = await provider.listAccounts()
+      setAccount(accounts[0])
+
+      console.log(`Web3: Account ${accounts[0]} connected.`)
+      const signer = provider.getSigner(accounts[0])
+      const messageToSign = `Sign in to app - timestamp ${+new Date()}`
+      const signedMsg = await signer.signMessage(messageToSign)
+
+      signIn('credentials', {
+        account: accounts[0],
+        message: messageToSign,
+        signature: signedMsg,
+      })
+    } catch (err) {
+      console.log('error:', err)
+    }
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -16,6 +65,18 @@ const Home: NextPage = () => {
         <h1 className={styles.title}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
+        <div>{session && <div>{JSON.stringify(session)}</div>}</div>
+        <div>{status && <div>{JSON.stringify({ status })}</div>}</div>
+        {status === 'authenticated' && (
+          <div>
+            <button onClick={() => signOut()}>Sign out</button>
+          </div>
+        )}
+        {status === 'unauthenticated' && (
+          <div>
+            <button onClick={connect}>Connect</button>
+          </div>
+        )}
 
         <p className={styles.description}>
           Get started by editing{' '}
