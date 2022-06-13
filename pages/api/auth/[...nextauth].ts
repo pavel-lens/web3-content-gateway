@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth/next'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { verifyMessageSignature } from '../../../utils'
+import * as db from '../../../database'
 
 export default NextAuth({
   session: {
@@ -8,11 +9,17 @@ export default NextAuth({
   },
   callbacks: {
     async session({ session, token }) {
-      console.log(`session(): user = ${JSON.stringify(session.user)}`)
-      session.user = session.user || {}
-      session.address = token.sub
-      session.user.name = token.sub
-      session.user.image = ''
+      const userAccount = (token.sub as string).toLocaleLowerCase()
+      const isPremiumAccount = await db.isPremiumAccount(userAccount)
+
+      // console.log(`session(): user = ${JSON.stringify(session.user)}`)
+      session.address = userAccount
+      session.isPremium = isPremiumAccount
+      // session.user = session.user || {}
+      // session.user.name = token.sub
+      // session.user.image = ''
+      // console.log({ session })
+      token.isPremium = isPremiumAccount
       return session
     },
   },

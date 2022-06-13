@@ -3,10 +3,13 @@ import type { NextPage } from 'next'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import Head from 'next/head'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useState } from 'react'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import Web3Modal from 'web3modal'
+import axios from 'axios'
 import styles from '../styles/Home.module.css'
+import { useRouter } from 'next/router'
 
 /* web3Modal configuration for enabling wallet access */
 async function getWeb3Modal() {
@@ -26,7 +29,11 @@ async function getWeb3Modal() {
 
 const Home: NextPage = () => {
   /* create local state to save account information after signin */
+  const router = useRouter()
   const [account, setAccount] = useState('')
+  const [userMessage, setUserMessage] = useState('')
+  // const [provider, setProvider] =
+  //   useState<ethers.providers.Web3Provider | null>(null)
   const { data: session, status } = useSession()
 
   /* the connect function uses web3 modal to connect to the user's wallet */
@@ -37,6 +44,7 @@ const Home: NextPage = () => {
       const provider = new ethers.providers.Web3Provider(connection)
       const accounts = await provider.listAccounts()
       setAccount(accounts[0])
+      // setProvider(provider)
 
       console.log(`Web3: Account ${accounts[0]} connected.`)
       const signer = provider.getSigner(accounts[0])
@@ -51,6 +59,51 @@ const Home: NextPage = () => {
     } catch (err) {
       console.log('error:', err)
     }
+  }
+
+  async function sendPayment() {
+    if (!session) {
+      throw new Error(
+        'You have to connect to wallet and sign in to your account first!'
+      )
+    }
+
+    const tx = {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: ethers.utils.parseEther('0.01'), // 0.01 ETH
+    }
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum)
+    const signer = await provider.getSigner(session.address as string)
+    const txObj = await signer.sendTransaction(tx)
+    console.log({ txObj })
+
+    const txReceipt = await provider.getTransactionReceipt(txObj.hash)
+    console.log({ txReceipt })
+
+    try {
+      const response = await axios.post(
+        `/api/payments/verify`,
+        {
+          txHash: txObj.hash,
+        },
+        {
+          validateStatus: () => true,
+        }
+      )
+
+      // Success! Redirect to use account (protected area)
+      if (response.status === 200) {
+        router.push('/protected')
+        return
+      } else {
+        setUserMessage('There was a problem with your paymnet :-(')
+      }
+    } catch (err) {
+      console.error(err)
+    }
+
+    // console.log(res)
   }
 
   return (
@@ -78,16 +131,26 @@ const Home: NextPage = () => {
           </div>
         )}
 
+        {status === 'authenticated' && (
+          <div>
+            <button onClick={sendPayment}>Pay 0.01 ETH</button>
+          </div>
+        )}
+
+        {userMessage && <div>{userMessage}</div>}
+
         <p className={styles.description}>
           Get started by editing{' '}
           <code className={styles.code}>pages/index.tsx</code>
         </p>
 
         <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+          <Link href="/protected" className={styles.card}>
+            <div>
+              <h2>Protected content &rarr;</h2>
+              <p>Find in-depth information about Next.js features and API.</p>
+            </div>
+          </Link>
 
           <a href="https://nextjs.org/learn" className={styles.card}>
             <h2>Learn &rarr;</h2>
