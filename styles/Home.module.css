@@ -10,6 +10,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  /* max-width: 400px; */
 }
 
 .footer {
@@ -41,6 +42,7 @@
 
 .title {
   margin: 0;
+  margin-bottom: 1rem;
   line-height: 1.15;
   font-size: 4rem;
 }
@@ -51,7 +53,7 @@
 }
 
 .description {
-  margin: 4rem 0;
+  margin: 2rem 0;
   line-height: 1.5;
   font-size: 1.5rem;
 }
@@ -74,6 +76,8 @@
 }
 
 .card {
+  display: block;
+  cursor: pointer;
   margin: 1rem;
   padding: 1.5rem;
   text-align: left;

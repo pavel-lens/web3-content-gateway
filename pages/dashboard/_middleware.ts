@@ -4,7 +4,7 @@ import { withAuth } from 'next-auth/middleware'
 export default withAuth({
   callbacks: {
     authorized: ({ token }) => {
-      console.log(`pages/protected: ${JSON.stringify(token)}`)
+      console.log(`pages/dashboard: ${JSON.stringify(token)}`)
       return token?.isPremium === true
     },
   },

@@ -51,10 +51,10 @@ export default async function handler(
       tx.to?.toLocaleLowerCase() === PAYABLE_ADDRESS && // Verify recipient (Octav.fi payable account)
       tx.from.toLocaleLowerCase() === (session.address as string) // Verify sender
     ) {
-      session.isPremium = true
-
       // Important to keep everything lowercase
       await db.addPremiumAccount(tx.from.toLocaleLowerCase())
+
+      session.isPremium = true
 
       return res.status(200).send({
         status: 'Payment successful!',

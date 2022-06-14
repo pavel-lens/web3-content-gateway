@@ -4,6 +4,9 @@ import { verifyMessageSignature } from '../../../utils'
 import * as db from '../../../database'
 
 export default NextAuth({
+  pages: {
+    signIn: '/signin',
+  },
   session: {
     strategy: 'jwt',
   },
