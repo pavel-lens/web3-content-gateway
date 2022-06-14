@@ -9,6 +9,7 @@ type RequestPayload = {
 
 const PAYABLE_AMOUNT = '0.01' // 0.01  ETH
 const PAYABLE_ADDRESS = process.env.OCTAV_PAYABLE_ADDRESS as string
+const NETWORK_RPC = process.env.NETWORK_RPC as string
 
 export default async function handler(
   req: NextApiRequest,
@@ -28,9 +29,7 @@ export default async function handler(
 
     const payload = req.body as RequestPayload
 
-    const provider = new ethers.providers.JsonRpcProvider(
-      'http://127.0.0.1:8545/'
-    )
+    const provider = new ethers.providers.JsonRpcProvider(NETWORK_RPC)
 
     /**
      * Wait till tx is mined. We wait for this in frontend, so this is a double-check.
