@@ -7,9 +7,11 @@ type RequestPayload = {
   txHash: string
 }
 
-const PAYABLE_AMOUNT = '0.01' // 0.01  ETH
-const PAYABLE_ADDRESS = process.env.OCTAV_PAYABLE_ADDRESS as string
 const NETWORK_RPC = process.env.NETWORK_RPC as string
+const PAYABLE_AMOUNT = '0.01' // 0.01  ETH
+const PAYABLE_ADDRESS = (
+  process.env.NEXT_PUBLIC_PAYABLE_ADDRESS as string
+).toLocaleLowerCase()
 
 export default async function handler(
   req: NextApiRequest,
@@ -62,7 +64,7 @@ export default async function handler(
     } else {
       return res.status(402).send({
         status: 'Payment required',
-        message: `Invalid payment amount: ${ethAmount} ETH. Must be ${PAYABLE_AMOUNT} ETH!`,
+        message: `Invalid payment amount: ${ethAmount} ETH or invalid recipient address: ${tx.to}`,
       })
     }
   } catch (err: any) {

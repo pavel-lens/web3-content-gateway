@@ -9,6 +9,8 @@ import axios from 'axios'
 import styles from '../styles/Home.module.css'
 import { useRouter } from 'next/router'
 
+const PAYABLE_ADDRESS = process.env.NEXT_PUBLIC_PAYABLE_ADDRESS
+
 /* web3Modal configuration for enabling wallet access */
 async function getWeb3Modal() {
   const web3Modal = new Web3Modal({
@@ -72,7 +74,7 @@ const Home: NextPage = () => {
     }
 
     const tx = {
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      to: PAYABLE_ADDRESS,
       value: ethers.utils.parseEther('0.01'), // 0.01 ETH
     }
 
