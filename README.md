@@ -1,33 +1,54 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+# Web3 content gateway
+
+This is a simple project built with [Next.js](https://nextjs.org/) to showcase how to protect a premium content behind 2 steps in Web3
+
+1. Sign in a message with your wallet - verify signature on server-sider
+2. Pay 0.01 ETH to predefined address to become a "premium user" to be able to access premium content
+
+## How to run
+
+### Installation
 
 First, run the development server:
 
 ```bash
+npm ci
+```
+
+### Configuration
+
+Terminal 1: Copy sample env file and run Hardhat (local Ethereum network)
+
+```bash
+cp env.local.example .env.local
+npx hardhat node
+```
+
+Set `NEXT_PUBLIC_PAYABLE_ADDRESS` in `.env.local` file to Account #0 from `npx hardhat node` command output.
+
+Important: Verify that your Hardhat RPC address corresponds to the `NETWORK_RPC` variable in `.env.local`
+
+Optional: Change values `NEXTAUTH_URL` and/or `NEXTAUTH_SECRET` according to your local setup.
+
+Terminal 2: Run the app in dev mode
+
+```bash
 npm run dev
-# or
-yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+Add Account #1 from `npx hardhat node` command output to your Web3 wallet.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+Optional: Add Account #0 from `npx hardhat node` command output to verify receival of the payment in your Web3 wallet.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+Choose "Account #1" in your Web3 wallet (the customer) and follow the sign in workflow.
 
-## Learn More
+Optional: After signing in and paying, you can verify in "Account #0" if ETH was received.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
+## NextJS: Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
